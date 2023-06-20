@@ -45,8 +45,9 @@ class CatSerializer(serializers.ModelSerializer):
             achievements = validated_data.pop('achievements')
             cat = Cat.objects.create(**validated_data)
             for achievement in achievements:
-                current_achievement, status = Achievement.objects.get_or_create(
-                    **achievement)
+                current_achievement, status = (
+                    Achievement.objects.get_or_create(**achievement)
+                )
                 AchievementCat.objects.create(
                     achievement=current_achievement, cat=cat)
             return cat
@@ -75,7 +76,8 @@ class CatSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data['color'] == data['name']:
+        if ('color' in data and 'name' in data and
+                data['color'] == data['name']):
             raise serializers.ValidationError(
                 'Имя не может совпадать с цветом!')
         return data
