@@ -116,7 +116,7 @@ Content-Type: application/json
 
 ###
 # Delete one object
-DELETE http://127.0.0.1:8000/cats/4/
+DELETE http://127.0.0.1:8000/cats/1/
 Authorization: Bearer {{ access_token_newuser2 }}
 
 # AssertionError: The `.update()` method does not support writable nested fields
@@ -144,4 +144,15 @@ Content-Type: application/json
     "name": "Black",
     "color": "Black",
     "birth_year": 2015
+}
+
+### Проверка UniqueTogetherValidator (В БД не может быть у одного хозяина 2 котиков с одинаковыми именами)
+POST {{ host }}cats/
+Authorization: Bearer {{ access_token_newuser2 }}
+Content-Type: application/json
+
+{
+    "name": "Мурка",
+    "color": "Mixed",
+    "birth_year": 2017
 }
