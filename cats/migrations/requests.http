@@ -1,0 +1,147 @@
+# Создание пользователя
+POST http://localhost:8000/auth/users/
+Content-Type: application/json
+
+{
+  "username": "newuser2",
+  "password": "secret13"
+}
+
+# HTTP/1.1 201 Created
+# ...
+# {
+#   "email": "",
+#   "username": "newuser1",
+#   "id": 1
+# }
+
+###
+# Создание JWT токена для пользователя
+POST http://127.0.0.1:8000/auth/jwt/create/
+Content-Type: application/json
+
+{
+  "username": "newuser2",
+  "password": "secret13"
+}
+
+# newuser1
+# {
+#   "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY4NzM3MjYxMSwianRpIjoiNWI5NzkxNjBkZGUxNDEyOWFlMWY5YmI0MjY5ZTQ2NjMiLCJ1c2VyX2lkIjoxfQ.s8lMwfIw-RDM66U1qP04hN64qNfx4YNwRDoLp2ScAJY",
+#   "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3MzcyNjExLCJqdGkiOiI4Mzc2ZmRlNTI0NDc0MDAwODIwMDZiOGIzMWQwMzk2MSIsInVzZXJfaWQiOjF9.fhnPR4YN8Z6bj6oQdrO1qtu3fKmEQKJG4N0pV8BGPxo"
+# }
+
+### Define the access token as an environment variable
+@token_newuser1 = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3MzcyNjExLCJqdGkiOiI4Mzc2ZmRlNTI0NDc0MDAwODIwMDZiOGIzMWQwMzk2MSIsInVzZXJfaWQiOjF9.fhnPR4YN8Z6bj6oQdrO1qtu3fKmEQKJG4N0pV8BGPxo
+
+# newuser2
+# {
+#   "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY4NzM3MjY2MSwianRpIjoiODJhZjI4ZTU2YzhiNGQyNDliN2UyYzFmYjQ5ZTcyOTQiLCJ1c2VyX2lkIjoyfQ.1Aklx7mx9BuftrvCefz8bVGrLeuLt-Cx3nI_JliUFfg",
+#   "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3MzcyNjYxLCJqdGkiOiI5NmI0ZTIyOGRhYjE0YjcwYWY5MTQ3ZDlkZmViOTczNyIsInVzZXJfaWQiOjJ9.BYdFIyHN3I1f_VVAC6EBrgmIyXIIBlKwfppmQODQGec"
+# }
+
+### Define the access token as an environment variable
+@token_newuser2 = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg3MzcyNjYxLCJqdGkiOiI5NmI0ZTIyOGRhYjE0YjcwYWY5MTQ3ZDlkZmViOTczNyIsInVzZXJfaWQiOjJ9.BYdFIyHN3I1f_VVAC6EBrgmIyXIIBlKwfppmQODQGec
+
+###
+# Получить список всех объектов User при помощи УЗ newuser1
+GET http://127.0.0.1:8000/users/
+Authorization: Bearer {{token_newuser1}}
+
+
+
+# Using Request Chaining
+# ======================
+
+@host = http://127.0.0.1:8000/
+@user_password = secret13
+
+### Create a new user and / or extract the access token from the response
+# @name request_jwt_newuser1
+POST http://localhost:8000/auth/jwt/create/
+Content-Type: application/json
+
+{
+  "username": "newuser1",
+  "password": "{{ user_password }}"
+}
+
+### Extract the access token from the response and use it in the next request
+@access_token_newuser1 = {{ request_jwt_newuser1.response.body.access }}
+
+### Get the list of users using the extracted access tokens of newuser1
+GET http://127.0.0.1:8000/users/
+Authorization: Bearer {{ access_token_newuser1 }}
+
+# ===========================================================================
+# ===========================================================================
+
+### Create another user and extract the access token from the response
+# @name request_jwt_newuser2
+POST http://localhost:8000/auth/jwt/create/
+Content-Type: application/json
+
+{
+  "username": "newuser2",
+  "password": "{{ user_password }}"
+}
+
+### Extract the access token from the response and use it in the next request
+@access_token_newuser2 = {{ request_jwt_newuser2.response.body.access }}
+
+### Get the list of users using the extracted access tokens
+GET http://127.0.0.1:8000/users/
+Authorization: Bearer {{ access_token_newuser2 }}
+
+### Добавление объекта Cats
+POST {{ host }}cats/
+Authorization: Bearer {{ access_token_newuser2 }}
+Content-Type: application/json
+
+{
+    "name": "Барсик",
+    "color": "Black",
+    "birth_year": 2020,
+    "owner": 2
+}
+
+### Частичное обновление объекта Cats
+PATCH {{ host }}cats/3/
+Authorization: Bearer {{ access_token_newuser2 }}
+Content-Type: application/json
+
+{
+    "birth_year": 2021
+}
+
+###
+# Delete one object
+DELETE http://127.0.0.1:8000/cats/4/
+Authorization: Bearer {{ access_token_newuser2 }}
+
+# AssertionError: The `.update()` method does not support writable nested fields
+# by default.
+# Write an explicit `.update()` method for serializer `cats.serializers.CatSerializer`,
+# or set `read_only=True` on nested serializer fields.
+### Частичное обновление вложенного поля объекта Cats
+PATCH {{ host }}cats/3/
+Authorization: Bearer {{ access_token_newuser2 }}
+Content-Type: application/json
+
+{
+    "achievements": [
+        {"achievement_name": "поймал мышку"},
+        {"achievement_name": "разбил вазу"}
+    ]
+}
+
+### Валидация на уровне объекта
+POST {{ host }}cats/
+Authorization: Bearer {{ access_token_newuser2 }}
+Content-Type: application/json
+
+{
+    "name": "Black",
+    "color": "Black",
+    "birth_year": 2015
+}
