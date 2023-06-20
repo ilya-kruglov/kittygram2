@@ -14,6 +14,7 @@ class CatViewSet(viewsets.ModelViewSet):
 
     # By using **serializer.validated_data, you pass all the validated data
     # from the serializer to the save() method, including the owner field.
+    # Resolving HiddenField issue.
     def perform_update(self, serializer):
         serializer.save(owner=self.request.user, **serializer.validated_data)
 
